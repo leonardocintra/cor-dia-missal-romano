@@ -1,0 +1,25 @@
+{
+  "name": "cor-dia-missal-romano",
+  "version": "1.0.0",
+  "description": "Cor do Missal Romano para cada dia do ano, de acordo com o Calendário Litúrgico da Igreja Católica.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/leonardocintra/cor-dia-missal-romano.git"
+  },
+  "keywords": [],
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/leonardocintra/cor-dia-missal-romano/issues"
+  },
+  "homepage": "https://github.com/leonardocintra/cor-dia-missal-romano#readme",
+  "devDependencies": {
+    "@types/jest": "^30.0.0",
+    "jest": "^30.5.2",
+    "ts-jest": "^29.4.12",
+    "typescript": "^7.0.2"
+  }
+}
