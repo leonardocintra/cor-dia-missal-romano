@@ -4,9 +4,8 @@ import { adicionarDias, dataUtc, obterDomingoMaisProximo } from './regras.js';
 import { calcularPascoa } from './pascoa.js';
 
 export function calcularDomingoAdvento(ano: number): Date {
-  const natal = dataUtc(ano, 11, 25);
-  const domingoAntesDoNatal = obterDomingoMaisProximo(natal);
-  return adicionarDias(domingoAntesDoNatal, -28);
+  const dataDeReferencia = dataUtc(ano, 10, 30);
+  return obterDomingoMaisProximo(dataDeReferencia);
 }
 
 export function calcularQuartaCinzas(ano: number): Date {
@@ -19,12 +18,14 @@ export function determinarPeriodoLiturgico(data: Date): PeriodoLiturgico {
   const domingoAdvento = calcularDomingoAdvento(ano);
   const quartaCinzas = calcularQuartaCinzas(ano);
   const domingoRamos = adicionarDias(pascoa, -7);
-  const quintaSanta = adicionarDias(pascoa, -3);
-  const sextaSanta = adicionarDias(pascoa, -2);
   const sabadoSanto = adicionarDias(pascoa, -1);
   const tempoComumInicio = adicionarDias(pascoa, 50);
-  const inicioNatal = dataUtc(ano, 11, 25);
-  const fimNatal = dataUtc(ano + 1, 0, 6);
+  const inicioNatalAtual = dataUtc(ano, 11, 25);
+  const fimNatalAtual = dataUtc(ano + 1, 0, 6);
+  const inicioNatalAnterior = dataUtc(ano - 1, 11, 25);
+  const fimNatalAnterior = dataUtc(ano, 0, 6);
+  const emNatal = (data >= inicioNatalAtual && data <= fimNatalAtual)
+    || (data >= inicioNatalAnterior && data <= fimNatalAnterior);
 
   if (data >= domingoAdvento && data <= dataUtc(ano, 11, 24)) {
     return {
@@ -36,13 +37,13 @@ export function determinarPeriodoLiturgico(data: Date): PeriodoLiturgico {
     };
   }
 
-  if (data >= inicioNatal && data <= fimNatal) {
+  if (emNatal) {
     return {
       nome: 'Natal',
       codigo: 'natal',
       corPadrao: CorLiturgica.BRANCO,
-      inicio: inicioNatal,
-      fim: fimNatal,
+      inicio: data >= inicioNatalAtual ? inicioNatalAtual : inicioNatalAnterior,
+      fim: data <= fimNatalAnterior ? fimNatalAnterior : fimNatalAtual,
     };
   }
 
