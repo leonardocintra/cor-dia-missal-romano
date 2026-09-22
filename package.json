@@ -4,10 +4,6 @@
   "description": "Cor do Missal Romano para cada dia do ano, de acordo com o Calendário Litúrgico da Igreja Católica.",
   "main": "dist/index.js",
   "type": "module",
-  "scripts": {
-    "build": "tsc -p tsconfig.json",
-    "test": "vitest run"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/leonardocintra/cor-dia-missal-romano.git"
@@ -17,8 +13,16 @@
     "url": "https://github.com/leonardocintra/cor-dia-missal-romano/issues"
   },
   "homepage": "https://github.com/leonardocintra/cor-dia-missal-romano#readme",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/server.js",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "fastify": "^5.12.5"
+  },
   "devDependencies": {
-    "@types/node": "^24.18.1",
+    "@types/node": "^26.6.2",
     "typescript": "^7.0.2",
     "vitest": "^5.0.1"
   }

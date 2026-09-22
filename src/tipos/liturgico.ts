@@ -7,7 +7,7 @@ export enum CorLiturgica {
 }
 
 export enum TipoCelebracao {
-  SOLEMNIDADE = 'solemnidade',
+  SOLENIDADE = 'solenidade',
   FESTA = 'festa',
   MEMORIA = 'memoria',
   DOMINGO = 'domingo',

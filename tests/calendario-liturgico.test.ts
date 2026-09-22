@@ -37,7 +37,7 @@ describe('Calendário litúrgico', () => {
     const dia = calcularDiaLiturgico(new Date(Date.UTC(2026, 3, 5)));
     expect(dia.periodo.nome).toBe('Páscoa');
     expect(dia.celebracoes.length).toBeGreaterThan(0);
-    expect(dia.celebracoes[0]?.tipo).toBe(TipoCelebracao.SOLEMNIDADE);
+    expect(dia.celebracoes[0]?.tipo).toBe(TipoCelebracao.SOLENIDADE);
     expect(dia.cor).toBe(CorLiturgica.BRANCO);
   });
 });

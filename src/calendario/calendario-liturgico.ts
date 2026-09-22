@@ -4,7 +4,7 @@ import { determinarPeriodoLiturgico } from './periodos.js';
 import { adicionarDias, calcularPascoa } from './pascoa.js';
 
 const precedenciaPorTipo: Record<TipoCelebracao, number> = {
-  [TipoCelebracao.SOLEMNIDADE]: 5,
+  [TipoCelebracao.SOLENIDADE]: 5,
   [TipoCelebracao.FESTA]: 4,
   [TipoCelebracao.DOMINGO]: 3,
   [TipoCelebracao.MEMORIA]: 2,
@@ -26,19 +26,19 @@ export function calcularDiaLiturgico(data: Date): DiaLiturgico {
   const celebracoes: CelebracaoLiturgica[] = [];
 
   if (data.getTime() === pascoa.getTime()) {
-    celebracoes.push(criarCelebracao('Domingo de Páscoa', TipoCelebracao.SOLEMNIDADE, CorLiturgica.BRANCO));
+    celebracoes.push(criarCelebracao('Domingo de Páscoa', TipoCelebracao.SOLENIDADE, CorLiturgica.BRANCO));
   }
 
   if (data.getTime() === adicionarDias(pascoa, -7).getTime()) {
-    celebracoes.push(criarCelebracao('Domingo de Ramos', TipoCelebracao.SOLEMNIDADE, CorLiturgica.VERMELHO));
+    celebracoes.push(criarCelebracao('Domingo de Ramos', TipoCelebracao.SOLENIDADE, CorLiturgica.VERMELHO));
   }
 
   if (data.getTime() === adicionarDias(pascoa, -3).getTime()) {
-    celebracoes.push(criarCelebracao('Quinta-feira Santa', TipoCelebracao.SOLEMNIDADE, CorLiturgica.BRANCO));
+    celebracoes.push(criarCelebracao('Quinta-feira Santa', TipoCelebracao.SOLENIDADE, CorLiturgica.BRANCO));
   }
 
   if (data.getTime() === adicionarDias(pascoa, -2).getTime()) {
-    celebracoes.push(criarCelebracao('Sexta-feira Santa', TipoCelebracao.SOLEMNIDADE, CorLiturgica.VERMELHO));
+    celebracoes.push(criarCelebracao('Sexta-feira Santa', TipoCelebracao.SOLENIDADE, CorLiturgica.VERMELHO));
   }
 
   if (data.getTime() === adicionarDias(pascoa, -46).getTime()) {
@@ -49,7 +49,7 @@ export function calcularDiaLiturgico(data: Date): DiaLiturgico {
     if (periodo.nome === 'Advento' || periodo.nome === 'Quaresma') {
       celebracoes.push(criarCelebracao(periodo.nome, TipoCelebracao.SEMANA, periodo.corPadrao));
     } else if (periodo.nome === 'Natal') {
-      celebracoes.push(criarCelebracao('Natal do Senhor', TipoCelebracao.SOLEMNIDADE, CorLiturgica.BRANCO));
+      celebracoes.push(criarCelebracao('Natal do Senhor', TipoCelebracao.SOLENIDADE, CorLiturgica.BRANCO));
     } else {
       celebracoes.push(criarCelebracao('Tempo Comum', TipoCelebracao.SEMANA, periodo.corPadrao));
     }
