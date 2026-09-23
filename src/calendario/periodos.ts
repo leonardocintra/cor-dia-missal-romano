@@ -4,8 +4,9 @@ import { adicionarDias, dataUtc, obterDomingoMaisProximo } from './regras.js';
 import { calcularPascoa } from './pascoa.js';
 
 export function calcularDomingoAdvento(ano: number): Date {
-  const dataDeReferencia = dataUtc(ano, 10, 30);
-  return obterDomingoMaisProximo(dataDeReferencia);
+  const natal = dataUtc(ano, 11, 25);
+  const domingoAntesDoNatal = obterDomingoMaisProximo(natal);
+  return adicionarDias(domingoAntesDoNatal, -21);
 }
 
 export function calcularQuartaCinzas(ano: number): Date {
