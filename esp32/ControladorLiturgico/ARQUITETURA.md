@@ -113,6 +113,31 @@ manual altera somente a data usada para mostrar e simular o resultado. A opção
 de fazer os relés seguirem a consulta manual será uma decisão explícita da
 interface, e não um efeito colateral da navegação.
 
+## Layout definido para o OLED
+
+O layout principal será limpo e priorizará a cor, que é a informação visível à
+distância e usada pelos relés:
+
+```text
+05/04/2026 - DOM
+
+--------------------  faixa amarela (16 pixels)
+
+Domingo de Páscoa
+Páscoa
+
+      BRANCO
+```
+
+Datas e dia da semana aparecem no topo, dentro da faixa amarela. A celebração
+começa na linha 20, já na região azul, e pode ocupar até duas linhas. O período
+fica abaixo dela. A cor aparece em tamanho maior no rodapé.
+
+O OLED SSD1306 com a fonte padrão não representa caracteres acentuados em
+UTF-8. A tela normaliza somente a exibição para ASCII (por exemplo, `Páscoa`
+aparece como `Pascoa`); o nome original com acentos continua preservado no
+núcleo litúrgico e no Monitor Serial.
+
 ## Critérios para o primeiro marco de implementação
 
 1. O firmware compila na Arduino IDE para ESP32.
