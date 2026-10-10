@@ -4,14 +4,27 @@
 #include <string.h>
 
 TelaOled::TelaOled()
-  : tela(LARGURA_TELA, ALTURA_TELA, &Wire, -1) {
+  : tela(LARGURA_TELA, ALTURA_TELA, &Wire, -1),
+    larguraDoTextoDaCelebracao(0),
+    deslocamentoDaRolagem(0),
+    instanteDaUltimaRolagem(0),
+    rolagemEstaAtiva(false) {
+  textoDaCelebracao[0] = '\0';
 }
 
 bool TelaOled::iniciar() {
-  return tela.begin(SSD1306_SWITCHCAPVCC, ENDERECO_I2C);
+  if (!tela.begin(SSD1306_SWITCHCAPVCC, ENDERECO_I2C)) {
+    return false;
+  }
+  tela.setTextWrap(false);  // texto rolante é recortado, nunca deslocado para baixo
+  return true;
 }
 
-void TelaOled::exibirDiaLiturgico(const DiaLiturgico& dia) {
+void TelaOled::exibirDiaLiturgico(
+  const DiaLiturgico& dia,
+  ModoDeOperacao modoDeOperacao,
+  CorLiturgica corExibida
+) {
   char cabecalho[20];
   snprintf(
     cabecalho,
@@ -23,22 +36,57 @@ void TelaOled::exibirDiaLiturgico(const DiaLiturgico& dia) {
     obterAbreviacaoDoDia(dia.data.obterDiaDaSemana())
   );
 
-  char nomeDaCelebracao[64];
   normalizarTextoParaOled(
     dia.celebracoes[0].nome,
-    nomeDaCelebracao,
-    sizeof(nomeDaCelebracao)
+    textoDaCelebracao,
+    sizeof(textoDaCelebracao)
   );
+  larguraDoTextoDaCelebracao = strlen(textoDaCelebracao) * 6;
+  deslocamentoDaRolagem = 0;
+  instanteDaUltimaRolagem = millis();
+  rolagemEstaAtiva = larguraDoTextoDaCelebracao > LARGURA_TELA;
 
   char nomeDoTempo[32];
   normalizarTextoParaOled(obterNomeDoTempo(dia.periodo.tempo), nomeDoTempo, sizeof(nomeDoTempo));
 
   tela.clearDisplay();
   tela.setTextColor(SSD1306_WHITE);
-  desenharLinhaCentralizada(cabecalho, 0, 1);
-  desenharTextoQuebrado(nomeDaCelebracao, POSICAO_Y_DA_CELEBRACAO);
+  tela.setTextSize(1);
+  tela.setCursor(0, 0);
+  tela.print(cabecalho);
+  tela.setCursor(108, 0);
+  tela.print(modoDeOperacao == ModoDeOperacao::AUTOMATICO ? "[A]" : "[M]");
+  desenharCelebracao();
   desenharLinhaCentralizada(nomeDoTempo, POSICAO_Y_DO_PERIODO, 1);
-  desenharLinhaCentralizada(obterNomeDaCor(dia.cor), POSICAO_Y_DA_COR, 2);
+  desenharLinhaCentralizada(obterNomeDaCor(corExibida), POSICAO_Y_DA_COR, 2);
+  tela.display();
+}
+
+void TelaOled::atualizarRolagem() {
+  if (!rolagemEstaAtiva) {
+    return;
+  }
+
+  const unsigned long instanteAtual = millis();
+  if (instanteAtual - instanteDaUltimaRolagem < INTERVALO_DA_ROLAGEM_EM_MILISSEGUNDOS) {
+    return;
+  }
+
+  instanteDaUltimaRolagem = instanteAtual;
+  deslocamentoDaRolagem++;
+
+  if (deslocamentoDaRolagem > larguraDoTextoDaCelebracao + ESPACO_ENTRE_REPETICOES) {
+    deslocamentoDaRolagem = 0;
+  }
+
+  tela.fillRect(
+    0,
+    POSICAO_Y_DA_CELEBRACAO,
+    LARGURA_TELA,
+    ALTURA_DA_LINHA_DA_CELEBRACAO,
+    SSD1306_BLACK
+  );
+  desenharCelebracao();
   tela.display();
 }
 
@@ -59,44 +107,24 @@ void TelaOled::desenharLinhaCentralizada(const char* texto, uint8_t posicaoY, ui
   tela.print(texto);
 }
 
-void TelaOled::desenharTextoQuebrado(const char* texto, uint8_t posicaoY) {
-  char linha[MAXIMO_DE_CARACTERES_POR_LINHA + 1] = "";
-  const char* inicioDaPalavra = texto;
-  uint8_t linhaAtual = 0;
+void TelaOled::desenharCelebracao() {
+  tela.setTextSize(1);
 
-  while (*inicioDaPalavra != '\0' && linhaAtual < MAXIMO_DE_LINHAS_DA_CELEBRACAO) {
-    while (*inicioDaPalavra == ' ') {
-      inicioDaPalavra++;
-    }
-
-    const char* fimDaPalavra = inicioDaPalavra;
-    while (*fimDaPalavra != '\0' && *fimDaPalavra != ' ') {
-      fimDaPalavra++;
-    }
-
-    const size_t tamanhoDaPalavra = fimDaPalavra - inicioDaPalavra;
-    const size_t tamanhoDaLinha = strlen(linha);
-    const bool cabeNaLinha = tamanhoDaLinha == 0
-      ? tamanhoDaPalavra <= MAXIMO_DE_CARACTERES_POR_LINHA
-      : tamanhoDaLinha + 1 + tamanhoDaPalavra <= MAXIMO_DE_CARACTERES_POR_LINHA;
-
-    if (!cabeNaLinha && tamanhoDaLinha > 0) {
-      desenharLinhaCentralizada(linha, posicaoY + linhaAtual * 9, 1);
-      linhaAtual++;
-      linha[0] = '\0';
-      continue;
-    }
-
-    if (tamanhoDaLinha > 0) {
-      strcat(linha, " ");
-    }
-
-    strncat(linha, inicioDaPalavra, MAXIMO_DE_CARACTERES_POR_LINHA - strlen(linha));
-    inicioDaPalavra = fimDaPalavra;
+  if (!rolagemEstaAtiva) {
+    desenharLinhaCentralizada(textoDaCelebracao, POSICAO_Y_DA_CELEBRACAO, 1);
+    return;
   }
 
-  if (linhaAtual < MAXIMO_DE_LINHAS_DA_CELEBRACAO && linha[0] != '\0') {
-    desenharLinhaCentralizada(linha, posicaoY + linhaAtual * 9, 1);
+  const int16_t posicaoX = -deslocamentoDaRolagem;
+  tela.setCursor(posicaoX, POSICAO_Y_DA_CELEBRACAO);
+  tela.print(textoDaCelebracao);
+
+  if (posicaoX + larguraDoTextoDaCelebracao < LARGURA_TELA) {
+    tela.setCursor(
+      posicaoX + larguraDoTextoDaCelebracao + ESPACO_ENTRE_REPETICOES,
+      POSICAO_Y_DA_CELEBRACAO
+    );
+    tela.print(textoDaCelebracao);
   }
 }
 
@@ -171,7 +199,6 @@ const char* TelaOled::obterNomeDaCor(CorLiturgica cor) {
     case CorLiturgica::BRANCO: return "BRANCO";
     case CorLiturgica::VERMELHO: return "VERMELHO";
     case CorLiturgica::VERDE: return "VERDE";
-    case CorLiturgica::ROSA: return "ROSA";
   }
 
   return "";

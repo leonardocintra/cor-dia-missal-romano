@@ -8,8 +8,12 @@ enum class CorLiturgica : uint8_t {
   VIOLETA,
   BRANCO,
   VERMELHO,
-  VERDE,
-  ROSA
+  VERDE
+};
+
+enum class ModoDeOperacao : uint8_t {
+  AUTOMATICO,
+  MANUAL
 };
 
 // Grau que define a precedência entre celebrações do mesmo dia.

@@ -130,8 +130,9 @@ Páscoa
 ```
 
 Datas e dia da semana aparecem no topo, dentro da faixa amarela. A celebração
-começa na linha 20, já na região azul, e pode ocupar até duas linhas. O período
-fica abaixo dela. A cor aparece em tamanho maior no rodapé.
+começa na linha 20, já na região azul. Quando ultrapassar a largura do OLED,
+ela desliza horizontalmente de forma contínua nessa linha. O período fica
+abaixo dela. A cor aparece em tamanho maior no rodapé.
 
 O OLED SSD1306 com a fonte padrão não representa caracteres acentuados em
 UTF-8. A tela normaliza somente a exibição para ASCII (por exemplo, `Páscoa`
@@ -150,11 +151,14 @@ núcleo litúrgico e no Monitor Serial.
 
 ## Decisões ainda necessárias antes do hardware entrar no código
 
-- Pinos usados por cada botão e relé;
-- se cada relé é ativo em nível alto ou baixo;
-- significado elétrico de cada uma das quatro saídas para cada cor;
-- comportamento desejado dos botões: navegação, ajuste do relógio e retorno à
-  data atual.
+As definições de hardware ficam centralizadas em `ConfiguracaoHardware.h`:
 
-Essas escolhas serão concentradas nos arquivos de configuração, sem misturar
-com as regras litúrgicas.
+- OLED e DS3231: SDA no GPIO 21 e SCL no GPIO 22;
+- botões: roxo 25, vermelho 26, branco 27 e verde 32;
+- relés: roxo 4, vermelho 16, branco 17 e verde 18;
+- relés ativos em nível baixo.
+
+Um botão seleciona a sua cor e liga somente o relé correspondente, desligando
+os demais. Isso reproduz o comportamento validado no protótipo. A seleção muda
+o aparelho para modo manual e permanece assim até a data do DS3231 mudar; na
+virada de data, o modo automático é restaurado e a cor litúrgica é reaplicada.
