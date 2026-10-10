@@ -19,8 +19,49 @@ DataCivil ultimaDataExibida;
 ModoDeOperacao modoDeOperacao = ModoDeOperacao::AUTOMATICO;
 CorLiturgica corManual = CorLiturgica::VERDE;
 unsigned long ultimaLeituraDoRelogio = 0;
+char linhaSerial[40];
+uint8_t tamanhoDaLinhaSerial = 0;
 
 const unsigned long INTERVALO_DE_LEITURA_DO_RELOGIO_EM_MILISSEGUNDOS = 500;
+
+void processarLinhaSerial(const char* linha) {
+  int ano, mes, dia, hora, minuto, segundo;
+  if (sscanf(linha, "DATA %d-%d-%d %d:%d:%d",
+             &ano, &mes, &dia, &hora, &minuto, &segundo) == 6) {
+    const DataCivil candidata(
+      static_cast<int16_t>(ano),
+      static_cast<uint8_t>(mes),
+      static_cast<uint8_t>(dia)
+    );
+
+    if (candidata.ehValida() && hora >= 0 && hora < 24
+        && minuto >= 0 && minuto < 60 && segundo >= 0 && segundo < 60) {
+      rtc.adjust(DateTime(ano, mes, dia, hora, minuto, segundo));
+      existeDataExibida = false;
+      Serial.println("DS3231 ajustado.");
+    } else {
+      Serial.println("Data/hora invalida.");
+    }
+  } else {
+    Serial.println("Formato: DATA YYYY-MM-DD HH:MM:SS");
+  }
+}
+
+void lerComandoSerial() {
+  while (Serial.available() > 0) {
+    const char caractere = static_cast<char>(Serial.read());
+
+    if (caractere == '\n' || caractere == '\r') {
+      if (tamanhoDaLinhaSerial > 0) {
+        linhaSerial[tamanhoDaLinhaSerial] = '\0';
+        processarLinhaSerial(linhaSerial);
+        tamanhoDaLinhaSerial = 0;
+      }
+    } else if (tamanhoDaLinhaSerial < sizeof(linhaSerial) - 1) {
+      linhaSerial[tamanhoDaLinhaSerial++] = caractere;
+    }
+  }
+}
 
 void atualizarSaidaAutomatica(const DataCivil& data) {
   const DiaLiturgico dia = calendario.obterDiaLiturgico(data);
@@ -71,8 +112,7 @@ void setup() {
   }
 
   if (rtc.lostPower()) {
-    Serial.println("O DS3231 perdeu a hora; ajustando com o horario de compilacao");
-    rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
+    Serial.println("DS3231 perdeu a hora; use o comando: DATA YYYY-MM-DD HH:MM:SS");
   }
 }
 
@@ -84,6 +124,8 @@ void loop() {
   if (!rtcEstaDisponivel) {
     return;
   }
+
+  lerComandoSerial();
 
   CorLiturgica corSelecionada;
   if (leitorBotoes.obterCorSelecionada(corSelecionada)) {
