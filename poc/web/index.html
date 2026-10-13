@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Cor litúrgica do dia de hoje e dos próximos 30 dias, segundo o Missal Romano."
+    />
+    <title>Cor do Dia — Missal Romano</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="app">
+      <header class="app__header">
+        <h1 class="app__titulo">Cor do Dia</h1>
+        <p class="app__subtitulo">Missal Romano</p>
+      </header>
+
+      <section id="hoje" class="hero" aria-label="Cor litúrgica de hoje"></section>
+
+      <section class="proximos" aria-labelledby="titulo-proximos">
+        <h2 id="titulo-proximos" class="proximos__titulo">Próximos 30 dias</h2>
+        <ul id="dias" class="dias"></ul>
+      </section>
+
+      <footer class="app__rodape">
+        <p>Calculado no seu navegador, sem servidor.</p>
+      </footer>
+    </main>
+
+    <script type="module" src="./bundle.js"></script>
+  </body>
+</html>

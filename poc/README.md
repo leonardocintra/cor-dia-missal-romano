@@ -57,6 +57,22 @@ curl "http://localhost:3000/cor?data=2026-03-05"
 }
 ```
 
+## Página web (GitHub Pages)
+
+Página estática, mobile-first, que mostra a cor litúrgica de hoje e dos próximos 30 dias. O cálculo roda inteiramente no navegador (sem servidor).
+
+```bash
+npm run build:web
+```
+
+O resultado é gerado em `web/dist/` (`index.html`, `styles.css`, `bundle.js`). Para pré-visualizar:
+
+```bash
+npx serve web/dist
+```
+
+O deploy é automático via GitHub Actions (`.github/workflows/pages.yml`) a cada push na `main`.
+
 ## Observação
 
 Este projeto possui também a biblioteca JavaScript/TypeScript para uso direto no código, sem depender de HTTP.

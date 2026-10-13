@@ -15,6 +15,7 @@
   "homepage": "https://github.com/leonardocintra/cor-dia-missal-romano#readme",
   "scripts": {
     "build": "tsc -p tsconfig.json",
+    "build:web": "node web/build.mjs",
     "start": "npm run build && node dist/server.js",
     "test": "vitest run"
   },
@@ -23,6 +24,7 @@
   },
   "devDependencies": {
     "@types/node": "^26.6.2",
+    "esbuild": "^0.28.0",
     "typescript": "^7.0.2",
     "vitest": "^5.0.1"
   }
