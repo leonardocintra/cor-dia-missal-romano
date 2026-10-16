@@ -37,7 +37,7 @@ describe('Calendário litúrgico', () => {
   });
 
   it('reconhece Ascensão do Senhor no calendário romano geral', () => {
-    const dia = calcularDiaLiturgico(new Date(Date.UTC(2026, 4, 14)));
+    const dia = calcularDiaLiturgico(new Date(Date.UTC(2026, 4, 17)));
     expect(dia.periodo.nome).toBe('Tempo Pascal');
     expect(dia.celebracoes[0]?.nome).toBe('Ascensão do Senhor');
     expect(dia.celebracoes[0]?.tipo).toBe(TipoCelebracao.SOLENIDADE);
@@ -52,7 +52,7 @@ describe('Calendário litúrgico', () => {
   });
 
   it('reconhece Corpus Christi no calendário romano geral sem perder o período', () => {
-    const dia = calcularDiaLiturgico(new Date(Date.UTC(2026, 5, 4)));
+    const dia = calcularDiaLiturgico(new Date(Date.UTC(2026, 5, 7)));
     expect(dia.periodo.nome).toBe('Tempo Comum');
     expect(dia.celebracoes[0]?.nome).toBe('Santíssimo Corpo e Sangue de Cristo');
     expect(dia.celebracoes[0]?.tipo).toBe(TipoCelebracao.SOLENIDADE);
@@ -60,7 +60,7 @@ describe('Calendário litúrgico', () => {
   });
 
   it('reconhece domingos como celebrações próprias', () => {
-    const dia = calcularDiaLiturgico(new Date(Date.UTC(2026, 4, 17)));
+    const dia = calcularDiaLiturgico(new Date(Date.UTC(2026, 4, 10)));
     expect(dia.periodo.nome).toBe('Tempo Pascal');
     expect(dia.celebracoes.some((celebracao) => celebracao.nome === 'Domingo do Tempo Pascal')).toBe(true);
     expect(dia.celebracoes[0]?.tipo).toBe(TipoCelebracao.DOMINGO);
@@ -105,9 +105,9 @@ describe('Calendário litúrgico', () => {
 
   it('identifica as principais festas do Tempo de Natal', () => {
     const datas = [
-      { data: new Date(Date.UTC(2026, 11, 26)), nome: 'Santo Estêvão', cor: CorLiturgica.VERMELHO },
-      { data: new Date(Date.UTC(2026, 11, 27)), nome: 'São João Evangelista', cor: CorLiturgica.BRANCO },
-      { data: new Date(Date.UTC(2026, 11, 28)), nome: 'Santos Inocentes', cor: CorLiturgica.VERMELHO },
+      { data: new Date(Date.UTC(2026, 11, 26)), nome: 'Santo Estêvão, primeiro mártir', cor: CorLiturgica.VERMELHO },
+      { data: new Date(Date.UTC(2026, 11, 27)), nome: 'Sagrada Família de Jesus, Maria e José', cor: CorLiturgica.BRANCO },
+      { data: new Date(Date.UTC(2026, 11, 28)), nome: 'Santos Inocentes, mártires', cor: CorLiturgica.VERMELHO },
       { data: new Date(Date.UTC(2027, 0, 1)), nome: 'Santa Maria, Mãe de Deus', cor: CorLiturgica.BRANCO },
       { data: new Date(Date.UTC(2027, 0, 6)), nome: 'Epifania do Senhor', cor: CorLiturgica.BRANCO },
       { data: new Date(Date.UTC(2027, 0, 10)), nome: 'Batismo do Senhor', cor: CorLiturgica.BRANCO },
@@ -122,12 +122,12 @@ describe('Calendário litúrgico', () => {
 
   it('reconhece festas fixas do calendário romano geral', () => {
     const datas = [
-      { data: new Date(Date.UTC(2026, 0, 25)), nome: 'Conversão de São Paulo', cor: CorLiturgica.BRANCO },
+      { data: new Date(Date.UTC(2027, 0, 25)), nome: 'Conversão de São Paulo, apóstolo', cor: CorLiturgica.BRANCO },
       { data: new Date(Date.UTC(2026, 1, 2)), nome: 'Apresentação do Senhor', cor: CorLiturgica.BRANCO },
-      { data: new Date(Date.UTC(2026, 1, 22)), nome: 'Cátedra de São Pedro', cor: CorLiturgica.BRANCO },
-      { data: new Date(Date.UTC(2026, 5, 24)), nome: 'Natividade de São João Batista', cor: CorLiturgica.BRANCO },
-      { data: new Date(Date.UTC(2026, 5, 29)), nome: 'São Pedro e São Paulo', cor: CorLiturgica.VERMELHO },
-      { data: new Date(Date.UTC(2026, 7, 15)), nome: 'Assunção da Bem-Aventurada Virgem Maria', cor: CorLiturgica.BRANCO },
+      { data: new Date(Date.UTC(2027, 1, 22)), nome: 'Cadeira de São Pedro, apóstolo', cor: CorLiturgica.BRANCO },
+      { data: new Date(Date.UTC(2026, 5, 24)), nome: 'Nascimento de São João Batista', cor: CorLiturgica.BRANCO },
+      { data: new Date(Date.UTC(2026, 5, 29)), nome: 'Santos Pedro e Paulo, apóstolos', cor: CorLiturgica.VERMELHO },
+      { data: new Date(Date.UTC(2026, 7, 15)), nome: 'Assunção da Virgem Santa Maria', cor: CorLiturgica.BRANCO },
       { data: new Date(Date.UTC(2026, 10, 1)), nome: 'Todos os Santos', cor: CorLiturgica.BRANCO },
     ];
 
@@ -138,11 +138,19 @@ describe('Calendário litúrgico', () => {
     });
   });
 
-  it('aplica precedência correta em domingo de Quaresma com solenidade', () => {
+  it('suprime festa de data fixa que cai num domingo, mantendo a cor do domingo', () => {
+    const dia = calcularDiaLiturgico(new Date(Date.UTC(2026, 0, 25)));
+    expect(dia.periodo.nome).toBe('Tempo Comum');
+    expect(dia.celebracoes.some((celebracao) => celebracao.nome === 'Conversão de São Paulo')).toBe(false);
+    expect(dia.celebracoes[0]?.tipo).toBe(TipoCelebracao.DOMINGO);
+    expect(dia.cor).toBe(CorLiturgica.VERDE);
+  });
+
+  it('suprime a festa de Cátedra de São Pedro quando cai num domingo de Quaresma', () => {
     const dia = calcularDiaLiturgico(new Date(Date.UTC(2026, 1, 22)));
-    expect(dia.celebracoes[0]?.nome).toBe('Cátedra de São Pedro');
-    expect(dia.celebracoes[0]?.tipo).toBe(TipoCelebracao.SOLENIDADE);
-    expect(dia.cor).toBe(CorLiturgica.BRANCO);
+    expect(dia.celebracoes[0]?.nome).toBe('Domingo da Quaresma');
+    expect(dia.celebracoes[0]?.tipo).toBe(TipoCelebracao.DOMINGO);
+    expect(dia.cor).toBe(CorLiturgica.VIOLETA);
     expect(dia.periodo.nome).toBe('Quaresma');
   });
 

@@ -20,7 +20,7 @@ struct CelebracaoLiturgica {
 
 // Resultado completo do cálculo para uma data.
 struct DiaLiturgico {
-  static const uint8_t QUANTIDADE_MAXIMA_DE_CELEBRACOES = 2;
+  static const uint8_t QUANTIDADE_MAXIMA_DE_CELEBRACOES = 4;
 
   DataCivil data;
   PeriodoLiturgico periodo;
@@ -52,9 +52,18 @@ private:
     TipoCelebracao tipo,
     CorLiturgica cor
   );
+  static void adicionarMovelSeIgual(
+    DiaLiturgico& dia,
+    const DataCivil& data,
+    const DataCivil& alvo,
+    const char* nome,
+    TipoCelebracao tipo,
+    CorLiturgica cor
+  );
   static void ordenarCelebracoesPorPrecedencia(DiaLiturgico& dia);
   static const char* obterNomeDoDomingo(TempoLiturgico tempo);
   static const char* obterNomePadraoDoPeriodo(TempoLiturgico tempo);
+  static DataCivil calcularSagradaFamilia(int16_t ano);
 };
 
 #endif

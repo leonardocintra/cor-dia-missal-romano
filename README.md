@@ -5,7 +5,8 @@ Para validar a logica usar o sistema que esta na pasta `poc`
 
 Leia o README.md da pasta poc para mais detalhes
 
-## Emulador
+## Fonte de dados
+https://gcatholic.org/calendar/2026/General-G-pt
 
 ## ESP32
 
